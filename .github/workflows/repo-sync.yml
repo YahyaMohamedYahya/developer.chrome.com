@@ -22,6 +22,8 @@ jobs:
           target_repo_token: ${{ secrets.PAT }}
           upstream_sync_branch: main
           upstream_sync_repo: GoogleChrome/developer.chrome.com
+          git_config_user: GitLocalize Upstream sync
+          git_config_email: mt@gitlocalize.com
       
       - if: steps.sync.outputs.has_new_commits == 'true'
         run: echo "New commits were found to sync."
