@@ -24,7 +24,6 @@ jobs:
           upstream_sync_repo: GoogleChrome/developer.chrome.com
           git_config_user: GitLocalize Upstream sync
           git_config_email: mt@gitlocalize.com
-          git_config_pull_rebase: true
       
       - if: steps.sync.outputs.has_new_commits == 'true'
         run: echo "New commits were found to sync."
