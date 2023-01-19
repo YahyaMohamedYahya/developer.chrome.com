@@ -4,6 +4,7 @@ layout: 'layouts/doc-post.njk'
 # The page title. This appears at the top of the doc and as the page name
 # in Google Search.
 title: Overview of Manifest V3
+seoTitle: Overview of the Chrome Extension Manifest V3
 
 # This appears below the title and is an optional teaser
 subhead: 'Key changes and features of Manifest V3.'
@@ -32,7 +33,7 @@ webbiness.
 
 This article summarizes the features and major changes introduced by Manifest V3. For
 help migrating Manifest V2 extensions to Manifest V3, or to better understand the
-architectural impact of these changes, see also the [Manifest V3 migration
+architectural effect of these changes, see also the [Manifest V3 migration
 guide](/docs/extensions/mv3/intro/mv3-migration/).
 
 Manifest V3 is available beginning with Chrome
@@ -59,7 +60,7 @@ Each of these changes is summarized in the sections below.
 
 ## Major features {: #major-features }
 
-This section introduces the most important and impactful features of Manifest V3.
+This section introduces the most important and influential features of Manifest V3.
 
 
 ### Service workers {: #service-workers }
@@ -121,7 +122,7 @@ for more about how to work with this change.
 
 ### Promises {: #promises }
 
-Manifest V3 provides first-class support for promises: many popular APIs support
+Manifest V3 provides first-class support for promises. Many popular APIs support
 promises now, and we will eventually support promises on all appropriate
 methods.
 
@@ -130,7 +131,9 @@ to an API method, this prevents the promise from being returned. Therefore you
 can defer this part of your migration until you're ready, or begin using
 promises immediately.
 
-Some scenarios, such as event listeners, will still require callbacks.
+Some scenarios, such as event listeners, will still require callbacks. For
+information on using promises, see [Promises on MDN][3]. For information on
+converting callbacks to promises, see [our own article][4].
 
 
 ## Other features {: #other-features }
@@ -142,13 +145,16 @@ There are a number of other changes introduced in Manifest V3:
 * [Web accessible resources](/docs/extensions/mv3/intro/mv3-migration#web-accessible-resources): These resources are now available only to specified sites and extensions.
 * [Content security policy (CSP)](/docs/extensions/mv3/intro/mv3-migration#content-security-policy): You now specify separate CSP for different execution contexts in a single object, and certain policies are disallowed.
 * [executeScript() changes](/docs/extensions/mv3/intro/mv3-migration#executing-arbitrary-strings): Extensions can no longer execute arbitrary strings, only script files and functions. This method is also migrating from the Tabs API to the new Scripting API.
+* [A new in-memory StorageArea][2] that can be used to store values in-memory across service worker restarts.
 
 The following features will be added to Manifest V3 soon:
 
 * **Dynamic content scripts:** the new [Scripting API][1] lets extensions register and unregister content scripts at runtime.
 * **New favicon API:** this new JavaScript API replaces "chrome://favicons" and gives  developers a way to retrieve websites' favicons.
-* **In-memory storage:** a new StorageArea on the Storage API that can be used to store values in memory across service worker restarts.
 
 Look for announcements of these and other Manifest V3 features as they become available.
 
 [1]: /docs/extensions/reference/scripting/
+[2]: /docs/extensions/reference/storage/#property-session
+[3]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[4]: /docs/extensions/mv3/promises#compare-to-callback

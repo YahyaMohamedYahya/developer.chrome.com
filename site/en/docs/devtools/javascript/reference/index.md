@@ -5,7 +5,7 @@ authors:
   - kaycebasques
   - sofiayem
 date: 2017-01-04
-updated: 2022-08-30
+updated: 2022-11-29
 description:
   "Discover new debugging workflows in this comprehensive reference of Chrome DevTools debugging
   features."
@@ -21,8 +21,21 @@ See [Get Started With Debugging JavaScript In Chrome DevTools][1] to learn the b
 ## Pause code with breakpoints {: #breakpoints }
 
 Set a breakpoint so that you can pause your code in the middle of its execution.
+To learn how to set breakpoints, see [Pause Your Code With Breakpoints][2].
 
-See [Pause Your Code With Breakpoints][2] to learn how to set breakpoints.
+### Check values when paused {: #inline-eval }
+
+While the execution is paused, the debugger evaluates all variables, constants, and objects within the current function up to a breakpoint. The debugger shows the current values inline next to the corresponding declarations.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/mUySGJfdYgR3URwClr67.png", alt="Inline evaluations displayed next to declarations.", width="800", height="363" %}
+
+You can use the [**Console**](/docs/devtools/console/) to query the evaluated variables, constants, and objects.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/e1Cyyoa0bLLGDnm3SU4D.png", alt="Using the Console to query the evaluated variables, constants and objects.", width="800", height="613" %}
+
+{% Aside 'gotchas' %}
+While the execution is paused, you can also [restart the current function](/docs/devtools/javascript/reference/#restart-frame) and even [live-edit](/docs/devtools/javascript/reference/#live-edit) it.
+{% endAside %}
 
 ### Preview class/function properties on hover {: #properties }
 
@@ -32,8 +45,7 @@ While the execution is paused, hover over a class or function name to preview it
 
 ## Step through code {: #stepping }
 
-Once your code is paused, step through it, one line at a time, investigating control flow and
-property values along the way.
+Once your code is paused, step through it, one expression at a time, investigating control flow and property values along the way.
 
 ### Step over line of code {: #step-over }
 
@@ -157,6 +169,42 @@ worker script. You want to view the local and global properties for the service 
 the Sources panel is showing the main script context. By clicking on the service worker entry in the
 Threads pane, you'd be able to switch to that context.
 
+### Step through comma-separated expressions {: comma-separated }
+
+{% Aside 'gotchas' %}
+Starting from Chrome version 108, the **Debugger** can step through both semicolon-separated (`;`) and comma-separated (`,`) expressions.
+{% endAside %}
+
+Stepping through comma-separated expressions lets you debug minified code. For example, consider the following code:
+
+```js
+function foo() {}
+
+function bar() {
+  foo();
+  foo();
+  return 42;
+}
+
+bar();
+```
+
+When minified, it contains a comma-separated `foo(),foo(),42` expression:
+
+```js
+function foo(){}function bar(){return foo(),foo(),42}bar();
+```
+
+The **Debugger** steps through such expressions just the same.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/4e1gHFnIkayVnoAu6OGK.png", alt="Stepping through a comma-separated expression.", width="800", height="341" %}
+
+Therefore, the stepping behavior is identical:
+
+- Between minified and authored code.
+- When using [sourcemaps](/blog/sourcemaps/) to debug the minified code in terms of the original code.
+  In other words, when you see semicolons, you can always expect to step through them even if the actual source you're debugging is minified.
+
 ## View and edit local, closure, and global properties {: #scope }
 
 While paused on a line of code, use the **Scope** pane to view and edit the values of properties and
@@ -173,8 +221,6 @@ The **Scope** pane on the screenshot above is outlined in blue.
 
 While paused on a line of code, use the **Call Stack** pane to view the call stack that got you to this
 point.
-
-If you're working with async code, check the **Async** checkbox to enable async call stacks.
 
 Click on an entry to jump to the line of code where that function was called. The blue arrow icon
 represents which function DevTools is currently highlighting.
@@ -260,6 +306,36 @@ Try restarting the frames of both functions in the following way:
    {% endAside %}
 1. Resume script execution (`F8`) to complete this tutorial.
 
+### Show ignore-listed frames {: #show-ignore-listed-frames }
+
+With the {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/9gzXiTYY0nZzBxGI6KrV.svg", alt="Settings.", width="24", height="24" %} **Settings** > **Ignore List** > **Automatically add known third-party scripts to ignore list** setting enabled, the **Scope** pane shows only the frames that are relevant to your code.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/YZH1mvFdglBhJVn7AGrz.png", alt="Call stack.", width="800", height="422" %}
+
+To view the full call stack including third-party frames, enable **Show ignore-listed frames** under the **Call Stack** section.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/1STrMhMqSyUGYXbCMymU.png", alt="Show ignore-listed frames.", width="800", height="422" %}
+
+Try it on this [demo page](https://ng-devtools.netlify.app/):
+
+1. In the **Sources** panel, open the `src` > `app` > `app.component.ts` file.
+2. Set a breakpoint at the `increment()` function.
+3. In the **Call Stack** section, check or clear the **Show ignore-listed frames** checkbox and observe the relevant or full list of frames in the call stack.
+
+### View async frames {: #async-frames }
+
+If supported by the framework you are using, DevTools can trace async operations by linking both parts of the async code together.
+
+In this case, the **Call Stack** shows the entire call history including async call frames.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/cytE0zCViowAP6ACyW34.png", alt="Async call frames.", width="800", height="615" %}
+
+{% Aside 'gotchas' %}
+DevTools implements this "Async Stack Tagging" feature based on the `console.createTask()` API method. It is up to frameworks to implement the API.
+
+For example, [Angular supports this feature](/blog/devtools-better-angular-debugging/#the-async-stack-tagging-api-in-angular).
+{% endAside %}
+
 ### Copy stack trace {: #copy-stack-trace }
 
 Right-click anywhere in the **Call Stack** pane and select **Copy stack trace** to copy the current call
@@ -274,6 +350,55 @@ getNumber1 (get-started.js:35)
 inputsAreEmpty (get-started.js:22)
 onClick (get-started.js:15)
 ```
+
+## Navigate the file tree {: #file-tree}
+
+Use [the **Page** pane](/docs/devtools/javascript/sources/#files) to navigate the file tree.
+
+### Group authored and deployed files in the file tree {: #group-authored-and-deployed }
+
+{% Aside %}
+**Note**: This is a {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/XfSWf04g2cwpnFcmp40m.svg", alt="Experimental.", width="20", height="20" %} preview feature available from Chrome version 104.
+{% endAside %}
+
+When developing web applications using frameworks (for example, [React](https://reactjs.org/) or [Angular](https://angular.io/)), it can be difficult to navigate sources due to the minified files generated by the build tools (for example, [webpack](https://webpack.js.org/) or [Vite](https://vitejs.dev/)).
+
+To help you navigate sources, the **Sources** > **Page** pane can group the files into two categories:
+
+- {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/KIgoYfQUdaCtgDLdYKSE.svg", alt="Code icon.", width="24", height="24" %} **Authored**. Similar to the source files you view in your IDE. DevTools generates these files based on sourcemaps provided by your build tools.
+- {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/KDnkz7biIKbfQktK3HXX.svg", alt="Deployed icon.", width="22", height="22" %} **Deployed**. The actual files that the browser reads. Usually these files are minified.
+
+To enable grouping, enable the {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/N5Lkpdwpaz4YqRGFr2Ks.svg", alt="Three-dot menu.", width="24", height="24" %} > **Group files by Authored/Deployed** {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/XfSWf04g2cwpnFcmp40m.svg", alt="Experimental.", width="20", height="20" %} option under the three-dot menu at the top of the file tree.
+
+{% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/Z5zD5HFsOLJRpzAGPz3k.png", alt="Grouping files by Authored / Deployed.", width="800", height="528" %}
+
+### Hide ignore-listed sources from the file tree {: #hide-ignore-listed }
+
+{% Aside %}
+**Note**: This is a {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/XfSWf04g2cwpnFcmp40m.svg", alt="Experimental.", width="20", height="20" %} preview feature available from Chrome version 106.
+{% endAside %}
+
+To help you focus only on the code you create, the **Sources** panel can hide ignore-listed third-party scripts from the file tree.
+
+{% Aside 'gotchas' %}
+By default, DevTools automatically adds third-party scripts to the ignore list based on the new `x_google_ignoreList` property in sourcemaps. Frameworks and bundlers need to supply this information.
+
+As of Chrome version 106, [Angular v14.1.0](https://github.com/angular/angular-cli/releases/tag/14.1.0) supports this feature. See [Case Study: Better Angular Debugging with DevTools](/blog/devtools-better-angular-debugging/#x_google_ignorelist-in-angular).
+{% endAside %}
+
+To hide known third-party sources:
+
+1. Make sure the following two settings in {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/9gzXiTYY0nZzBxGI6KrV.svg", alt="Settings.", width="24", height="24" %} **Settings** > **Ignore List** are enabled:
+
+   - {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/hmp8j3HiLMCcqPArD9yt.svg", alt="Checkbox.", width="22", height="22" %} **Enable Ignore Listing**
+  
+   - {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/hmp8j3HiLMCcqPArD9yt.svg", alt="Checkbox.", width="22", height="22" %} **Automatically add known third-party scripts to ignore list**
+
+   {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/JOwVIMb8WzRCacSq4oeK.png", alt="Automatically add known third-party scripts to ignore list.", width="800", height="506" %}
+
+1. Select **Sources** > **Page** > {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/N5Lkpdwpaz4YqRGFr2Ks.svg", alt="Three-dot menu.", width="24", height="24" %} > **Hide ignore-listed sources** {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/XfSWf04g2cwpnFcmp40m.svg", alt="Experimental.", width="20", height="20" %}.
+
+   {% Img src="image/dPDCek3EhZgLQPGtEG3y0fTn4v82/Y4KSjl9zJQdnAhTvtnXm.png", alt="Hide ignore-listed sources.", width="800", height="449" %}
 
 ## Ignore a script or pattern of scripts {: #ignore-list }
 
@@ -317,12 +442,21 @@ To ignore a script from the **Call Stack** pane:
 
 To ignore a single script or pattern of scripts from Settings:
 
-1.  Open [Settings][3].
-2.  Go to the **Ignore List** tab.
-    {% Img src="image/QMjXarRXcMarxQddwrEdPvHVM242/DFANGZspw5B4IlgO04I6.png", alt="Ignoring a script from Settings.", width="800", height="552" %}
-3.  Click **Add pattern**.
-4.  Enter the script name or a regex pattern of script names to ignore.
-5.  Click **Add**.
+1. Open [Settings][3].
+1. Go to the **Ignore List** tab.
+1. Make sure {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/hmp8j3HiLMCcqPArD9yt.svg", alt="Checkbox.", width="22", height="22" %} **Enable Ignore Listing** is checked.
+    {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/oNWiT5ZdB1FCDNE6TuXp.png", alt="Ignoring a script from Settings.", width="800", height="576" %}
+1. Under **Custom exclusion rules**, click **Add pattern**.
+1. Enter the script name or a RegEx pattern of script names to ignore.
+1. Click **Add**.
+
+For more information on checkboxes under **General exclusion rules**, see:
+
+- {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/hmp8j3HiLMCcqPArD9yt.svg", alt="Checkbox.", width="22", height="22" %} [**Add content scripts to ignore list**](/docs/devtools/javascript/ignore-chrome-extension-scripts/)
+- {% Img src="image/NJdAV9UgKuN8AhoaPBquL7giZQo1/hmp8j3HiLMCcqPArD9yt.svg", alt="Checkbox.", width="22", height="22" %} **Automatically add known third-party scripts to ignore list**:
+
+  - [Show ignore-listed frames](/docs/devtools/javascript/reference/#show-ignore-listed-frames)
+  - [Hide ignore-listed sources from the file tree](/docs/devtools/javascript/reference/#hide-ignore-listed)
 
 ## Run snippets of debug code from any page {: #snippets }
 

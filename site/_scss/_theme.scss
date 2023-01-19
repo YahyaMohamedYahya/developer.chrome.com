@@ -24,7 +24,7 @@
   --rgb-button-overlay: 60, 64, 67;
 
   --color-code-bg: #{get-color('grey-50')};
-  --color-code-comment: #{get-color('grey-500')};
+  --color-code-comment: #{get-color('blue-900')};
   --color-code-string: #{get-color('blue-900')};
   --color-code-tag: #{get-color('green-600')};
   --color-code-number: #{get-color('blue-700')};
@@ -37,6 +37,8 @@
   --color-project-handbook: #{get-color('red-700')};
   --color-project-workbox: #{get-color('orange-400')};
   --color-project-lighthouse: #06f;
+
+  --color-meettheteam-bg: #{get-color('yellow-50')};
 
   --color-blue-lightest: #{rgb(get-color('blue-50'), 0.4)};
   --color-blue-lighter: #{get-color('blue-100')};
